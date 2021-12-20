@@ -20,16 +20,16 @@ async function openPage(br, url, agent) {
          let verifyBtn = await page.$('[data-role="confirm"]');
           if (verifyBtn !== null) {
               await verifyBtn.click();
-              await wait(3000);
+              await page.waitForTimeout(2000);
           }
 
           let adBtn = await page.$('[class="item replacement-template"]');
           if (adBtn !== null) {
               await adBtn.click();
-              await wait(6000);
+              await page.waitForTimeout(2000);
           }
-      } catch (err1) { process.send(`Page error1 : ${err1}`) }
-  } catch (err2) { process.send(`Page error2 : ${err2}`) }
+      } catch (err1) { /*process.send(`Page error1 : ${err1}`)*/ }
+  } catch (err2) { /*process.send(`Page error2 : ${err2}`)*/ }
 }
 
 async function openBrowser(arr) {
