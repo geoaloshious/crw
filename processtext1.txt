@@ -23,7 +23,7 @@ async function openPage(br, url, agent) {
           }
           else { }
       } catch (err1) { process.send(`Page error1 : ${err1}`) }
-  } catch (err2) { process.send(`Browser error2 : ${err2}`) }
+  } catch (err2) { process.send(`Page error2 : ${err2}`) }
 }
 
 async function openBrowser(arr) {
