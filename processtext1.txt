@@ -5,78 +5,51 @@ puppeteer.use(StealthPlugin());
 
 process.setMaxListeners(10000);
 
-const URLS = ${JSON.stringify(URLS)}
-
-function waitMin(milliSec) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliSec);
-  });
-}
-
-function a(br, urls) {
-  return new Promise((resolve) => {
-    let completed = 0;
-    urls.forEach((u) => {
-      b(br, u).then(() => {
-        completed++;
-        if (completed === urls.length) {
-          resolve();
-        }
-      });
-    });
-  })
-}
-
-function b(br, url) {
-  return new Promise(async (resolve) => {
-    try {
+async function openPage(br, url, agent) {
+  try {
       const page = await br.newPage();
+      await page.setUserAgent(agent);
+      await page.setCacheEnabled(false);
       await page.goto(url, {
-        waitUntil: "networkidle2",
+          waitUntil: 'networkidle2'
       });
+      await wait(2000);
 
-      await waitMin(10000);
-    } catch (error) { }
-    resolve()
-  })
+      try {
+         let verifyBtn = await page.$('#disclaimer-enter');
+          if (verifyBtn !== null) {
+              await verifyBtn.click();
+              await wait(5000);
+          }
+          else { }
+      } catch (err) { }
+  } catch (error) { }
 }
 
-async function browsee(arr) {
-  for (let i = 0; i < arr.length; i++) {
-    let browser = await puppeteer.launch({
-      // headless: false,
-      ignoreHTTPSErrors: true,
-      args: [
-        "--disable-dev-shm-usage",
-        `+ "`--proxy-server=" + "${arr[i].proxy}`," + `
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-      ],
-    });
-    /*
-    let page = (await browser.pages())[0];
-    // page.setUserAgent(arr[i].ua);
+async function openBrowser(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let { proxy, ua } = arr[i]
 
-    for (let u = 0; u < URLS.length; u++) {
-      try {
-        await page.goto(URLS[u], {
-          waitUntil: "networkidle2",
-        });
+        try {
+            let browser = await puppeteer.launch({
+                ignoreHTTPSErrors: true,
+                executablePath: "/usr/lib/chromium-browser/chromium-browser",
+                args: [
+                    "--disable-dev-shm-usage",
+                    `--proxy-server=${proxy}`,
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                ]
+            });
 
-        if (u !== 0) {
-          await waitMin(10000);
-        }
-      } catch (error) { }
+            await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
+            await browser.close();
+        } catch (error) { }
     }
-    */
-    await a(browser, URLS);
-
-    await browser.close();
-  }
 }
 
 process.on("message", (msg) => {
-  browsee(msg).then(() => {
+  openBrowser(msg).then(() => {
     process.exit();
   });
 });
