@@ -1,0 +1,82 @@
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
+puppeteer.use(StealthPlugin());
+
+process.setMaxListeners(10000);
+
+const URLS = ${JSON.stringify(URLS)}
+
+function waitMin(milliSec) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliSec);
+  });
+}
+
+function a(br, urls) {
+  return new Promise((resolve) => {
+    let completed = 0;
+    urls.forEach((u) => {
+      b(br, u).then(() => {
+        completed++;
+        if (completed === urls.length) {
+          resolve();
+        }
+      });
+    });
+  })
+}
+
+function b(br, url) {
+  return new Promise(async (resolve) => {
+    try {
+      const page = await br.newPage();
+      await page.goto(url, {
+        waitUntil: "networkidle2",
+      });
+
+      await waitMin(10000);
+    } catch (error) { }
+    resolve()
+  })
+}
+
+async function browsee(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    let browser = await puppeteer.launch({
+      // headless: false,
+      ignoreHTTPSErrors: true,
+      args: [
+        "--disable-dev-shm-usage",
+        `+ "`--proxy-server=" + "${arr[i].proxy}`," + `
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+      ],
+    });
+    /*
+    let page = (await browser.pages())[0];
+    // page.setUserAgent(arr[i].ua);
+
+    for (let u = 0; u < URLS.length; u++) {
+      try {
+        await page.goto(URLS[u], {
+          waitUntil: "networkidle2",
+        });
+
+        if (u !== 0) {
+          await waitMin(10000);
+        }
+      } catch (error) { }
+    }
+    */
+    await a(browser, URLS);
+
+    await browser.close();
+  }
+}
+
+process.on("message", (msg) => {
+  browsee(msg).then(() => {
+    process.exit();
+  });
+});
