@@ -13,17 +13,17 @@ async function openPage(br, url, agent) {
       await page.goto(url, {
           waitUntil: 'networkidle2'
       });
-      await wait(2000);
+      await page.waitForTimeout(2000);
 
       try {
          let verifyBtn = await page.$('#disclaimer-enter');
           if (verifyBtn !== null) {
               await verifyBtn.click();
-              await wait(5000);
+              await page.waitForTimeout(5000);
           }
           else { }
-      } catch (err) { }
-  } catch (error) { }
+      } catch (err1) { process.send(`Page error1 : ${err1}`) }
+  } catch (err2) { process.send(`Browser error2 : ${err2}`) }
 }
 
 async function openBrowser(arr) {
@@ -44,7 +44,7 @@ async function openBrowser(arr) {
 
             await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
             await browser.close();
-        } catch (error) { }
+        } catch (error) { process.send(`Browser error : ${error}`) }
     }
 }
 
