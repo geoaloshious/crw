@@ -11,8 +11,7 @@ async function openPage(br, url, agent) {
       await page.setUserAgent(agent);
       await page.setCacheEnabled(false);
       await page.goto(url, {
-          waitUntil: 'networkidle2',
-          timeout: 0
+          waitUntil: 'networkidle2'
       });
       await page.waitForTimeout(2000);
 
