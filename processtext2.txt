@@ -53,8 +53,7 @@ async function openBrowser(arr) {
  //await Promise.allSettled(arr.map(browse2));
  
     for (let i = 0; i < arr.length; i++) {
-        let { proxy, ua } = arr[i]
-        process.send(proxy);
+        let { proxy, ua } = arr[i];
 
         try {
             let browser = await puppeteer.launch({
