@@ -53,6 +53,7 @@ async function openBrowser(arr) {
  //await Promise.allSettled(arr.map(browse2));
  
     for (let i = 0; i < arr.length; i++) {
+        console.log(JSON.stringify(arr));
         let { proxy, ua } = arr[i]
 
         try {
