@@ -16,19 +16,18 @@ async function openPage(br, url, agent) {
       await page.waitForTimeout(2000);
 
       try {
-         let verifyBtn = await page.$('#disclaimer-enter');
+          let verifyBtn = await page.$('#disclaimer-enter');
           if (verifyBtn !== null) {
               await verifyBtn.click();
               await page.waitForTimeout(5000);
           }
-          else { }
       } catch (err1) { process.send(`Page error1 : ${err1}`) }
   } catch (err2) { process.send(`Page error2 : ${err2}`) }
 }
 
 async function openBrowser(arr) {
     for (let i = 0; i < arr.length; i++) {
-        let { proxy, ua } = arr[i]
+        let { proxy, ua } = arr[i];
 
         try {
             let browser = await puppeteer.launch({
@@ -48,8 +47,12 @@ async function openBrowser(arr) {
     }
 }
 
+async function browse1(arr){
+  await Promise.allSettled(arr.map(openBrowser));
+}
+
 process.on("message", (msg) => {
-  openBrowser(msg).then(() => {
+  browse1(msg).then(() => {
     process.exit();
   });
 });
