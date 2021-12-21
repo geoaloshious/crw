@@ -31,7 +31,7 @@ async function openPage(br, url, agent) {
   } catch (err2) { /*process.send(`Page error2 : ${err2}`)*/ }
 }
 
-async function browse2({proxy, ua}) {
+/*async function browse2({proxy, ua}) {
   try {
       let browser = await puppeteer.launch({
           ignoreHTTPSErrors: true,
@@ -47,12 +47,12 @@ async function browse2({proxy, ua}) {
       await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
       await browser.close();
   } catch (error) { process.send(`Browser error : ${error}`) }
-}
+}*/
 
 async function openBrowser(arr) {
- await Promise.allSettled(arr.map(browse2));
+ //await Promise.allSettled(arr.map(browse2));
  
-    /*for (let i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
         let { proxy, ua } = arr[i]
 
         try {
@@ -70,7 +70,7 @@ async function openBrowser(arr) {
             await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
             await browser.close();
         } catch (error) { process.send(`Browser error : ${error}`) }
-    }*/
+    }
 }
 
 process.on("message", (msg) => {
