@@ -1,0 +1,60 @@
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
+puppeteer.use(StealthPlugin());
+
+process.setMaxListeners(10000);
+
+async function openPage(br, url, agent) {
+  try {
+      const page = await br.newPage();
+      await page.setUserAgent(agent);
+      await page.setCacheEnabled(false);
+      await page.goto(url, {
+          waitUntil: 'networkidle2'
+      });
+      await page.waitForTimeout(2000);
+
+      try {
+          let verifyBtn = await page.$('#disclaimer-over18btn');
+          if (verifyBtn !== null) {
+              await verifyBtn.click();
+              await page.waitForTimeout(5000);
+          }
+      } catch (err1) { /*process.send(`Page error1 : ${err1}`)*/ }
+      await page.close();
+  } catch (err2) { /*process.send(`Page error2 : ${err2}`)*/ }
+}
+
+async function openBrowser(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let { proxy, ua } = arr[i];
+
+        try {
+            let browser = await puppeteer.launch({
+                ignoreHTTPSErrors: true,
+                executablePath: "/usr/lib/chromium-browser/chromium-browser",
+                args: [
+                    "--disable-dev-shm-usage",
+                    `--proxy-server=${proxy}`,
+                    "--no-sandbox",
+                    "--disable-setuid-sandbox",
+                ]
+            });
+
+            await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
+            await browser.close();
+            process.send(`Proxy : ${proxy}`)
+        } catch (error) { process.send(`Browser error : ${error}`) }
+    }
+}
+
+async function browse1(arr){
+  await Promise.allSettled(arr.map(openBrowser));
+}
+
+process.on("message", (msg) => {
+  browse1(msg).then(() => {
+    process.exit();
+  });
+});
