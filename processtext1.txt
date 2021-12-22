@@ -22,6 +22,7 @@ async function openPage(br, url, agent) {
               await page.waitForTimeout(5000);
           }
       } catch (err1) { /*process.send(`Page error1 : ${err1}`)*/ }
+      await page.close();
   } catch (err2) { /*process.send(`Page error2 : ${err2}`)*/ }
 }
 
