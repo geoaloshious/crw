@@ -28,7 +28,6 @@ async function openPage(br, url, agent) {
 async function openBrowser(arr) {
     for (let i = 0; i < arr.length; i++) {
         let { proxy, ua } = arr[i];
-        process.send(`Proxy : ${proxy}`)
 
         try {
             let browser = await puppeteer.launch({
@@ -44,6 +43,7 @@ async function openBrowser(arr) {
 
             await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
             await browser.close();
+            process.send(`Proxy : ${proxy}`)
         } catch (error) { process.send(`Browser error : ${error}`) }
     }
 }
