@@ -4,8 +4,10 @@ let urlLimit = 8;
 let sIndex = slNo * urlLimit;
 let eIndex = sIndex + urlLimit;
 
-let userAgents = await crequest('https://geoaloshious.github.io/crw/useragents.txt', true);
-let URLS = (await crequest(`https://geoaloshious.github.io/crw/urls/${site===1?'xvd':'xnxx'}.txt`, true)).slice(sIndex,eIndex);
+(async() => {
+        let userAgents = await crequest('https://geoaloshious.github.io/crw/useragents.txt', true);
+        let URLS = (await crequest(`https://geoaloshious.github.io/crw/urls/${site===1?'xvd':'xnxx'}.txt`, true)).slice(sIndex,eIndex);
+})();
 
 function proxyGenerator() {
         return new Promise((resolve) => {
