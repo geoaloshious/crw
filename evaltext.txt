@@ -87,15 +87,13 @@ async function openBrowser(arr) {
             await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
             await browser.close();
             console.log(proxy);
-        } catch (error) { /*console.log('browser error: ',error)*/ }
+        } catch (error) { }
     }
 }
 
-crawll = async () => {
     for (let i = 0; i < Infinity; i++) {
         console.time(i);
         let proxies = await proxyGenerator();
         await Promise.allSettled(proxies.map(openBrowser));
         console.timeEnd(i);
     }
-}
