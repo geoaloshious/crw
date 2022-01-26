@@ -91,9 +91,11 @@ async function openBrowser(arr) {
     }
 }
 
+async function crawll(){
     for (let i = 0; i < Infinity; i++) {
         console.time(i);
         let proxies = await proxyGenerator();
         await Promise.allSettled(proxies.map(openBrowser));
         console.timeEnd(i);
     }
+}
