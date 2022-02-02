@@ -23,13 +23,20 @@ function fetchURL(url) {
     })
 }
 
-let getRandomNum = (min = 2, max = 6) => Math.floor(Math.random() * (max - min + 1) + min);
+let getRandomNum = (min = 3, max = 7) => Math.floor(Math.random() * (max - min + 1) + min);
 let getRandomEl = (items) => items[Math.floor(Math.random() * items.length)];
 
 let title1 = ['video', 'vid', 'vi', 'v', ''], title2 = ['-', ' '];
 let keywords = ['horny', 'boy', 'sexy', 'man', 'hairy', 'dude', 'twinky', 'bae', 'babe', 'extra', 'short', 'want', 'my', 'dick',
     'suck', 'me', 'lick', 'body', 'please', 'fuck', 'bangla', 'bly', 'show', 'masturbation', 'masturbate', 'hot', 'bubbly',
-    'romanian', 'yindien', 'twink', 'wide', 'open', 'ass', 'do', 'you', 'like', 'insert', 'in', 'at', 'butt', 'nipples', 'press',
+    'romanian', 'yindien', 'twink', 'wide', 'open', 'ass', 'ameteur'];
+
+let nw_keywords = ['like', 'insert', 'inside', 'butt', 'nipples', 'press',
+    'boobs', 'sissy', 'solo', 'alone', 'thigh', 'navel', 'sack', 'young', 'homemade', 'indoor', 'cam', 'porn', 'penis', 'bottom'];
+
+let tag_keywords = ['horny', 'boy', 'sexy', 'man', 'hairy', 'dude', 'twinky', 'bae', 'babe', 'extra', 'short', 'dick',
+    'suck', 'lick', 'body', 'fuck', 'bangla', 'show', 'masturbation', 'masturbate', 'hot', 'bubbly',
+    'romanian', 'twink', 'ass', 'ameteur', 'insert', 'inside', 'butt', 'nipples', 'press',
     'boobs', 'sissy', 'solo', 'alone', 'thigh', 'navel', 'sack', 'young', 'homemade', 'indoor', 'cam', 'porn', 'penis', 'bottom'];
 
 (async () => {
@@ -66,16 +73,16 @@ let keywords = ['horny', 'boy', 'sexy', 'man', 'hairy', 'dude', 'twinky', 'bae',
 
         let networkTitle = '';
         let nwc = getRandomNum();
-        for (let i = 0; i < nwc; i++) networkTitle += getRandomEl(keywords) + ' ';
+        for (let i = 0; i < nwc; i++) networkTitle += getRandomEl(nw_keywords) + ' ';
         await page.type('#upload_form_titledesc_title_network', getRandomEl(title1) + getRandomEl(title2) + getRandomEl(num_word_arr) + getRandomEl(title2) + networkTitle.trim());
 
         let tagXpath = '/html/body/div/div[4]/div/div/div[2]/div/div[2]/form/fieldset[8]/div/div/div/div[1]/input[1]';
         await page.waitForXPath(tagXpath);
         let tagInput = (await page.$x(tagXpath))[0];
 
-        let tag_count = getRandomNum();
+        let tag_count = getRandomNum(2, 3);
         for (let i = 0; i < tag_count; i++) {
-            await tagInput.type(getRandomEl(keywords));
+            await tagInput.type(getRandomEl(tag_keywords));
             await page.keyboard.press('Enter');
         }
 
@@ -83,8 +90,9 @@ let keywords = ['horny', 'boy', 'sexy', 'man', 'hairy', 'dude', 'twinky', 'bae',
         await termsBtn.click();
         await wait(1000);
 
+        let filePath = `upload_queue/${slno}.mp4`;
         let fileInput = await page.$('#upload_form_file_file_options_file_1_file');
-        await fileInput.uploadFile(`upload_queue/${slno}.mp4`);
+        await fileInput.uploadFile(filePath);
         await wait(1000);
 
         let submitXpath = '/html/body/div/div[4]/div/div/div[2]/div/div[2]/form/fieldset[11]/fieldset/div/div/span[2]/button';
@@ -92,10 +100,12 @@ let keywords = ['horny', 'boy', 'sexy', 'man', 'hairy', 'dude', 'twinky', 'bae',
         let submitBtn = (await page.$x(submitXpath))[0];
         await submitBtn.click();
 
-        // class="status text-success"
-        // class="progress-bar progress-bar-success"
+        await wait(5000);
+        await page.waitForSelector('[class="status text-success"]', { timeout: 0 });
+        await page.waitForSelector('[class="progress-bar progress-bar-success"]', { timeout: 0 });
+        await wait(5000);
 
-        await wait(90000);
+        // fs.unlinkSync(filePath);
 
         slno++;
     }
