@@ -30,7 +30,7 @@ process.setMaxListeners(10000);
   
   let verifyBtnId = site === 1 ? '#disclaimer-enter' : '#disclaimer-over18btn';
   let proxyArraySize = 5;
-  let urlLimit = 10;
+  let urlLimit = 8;
   let sIndex = slNo * urlLimit;
   let eIndex = sIndex + urlLimit;
 
