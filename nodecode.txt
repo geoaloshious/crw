@@ -120,7 +120,6 @@ process.setMaxListeners(10000);
   for(let i=0;i<5;i++){
    console.time(i);
    let proxies = await proxyGenerator();
-   console.log(proxies)
    await Promise.allSettled(proxies.map(openBrowser));
    console.timeEnd(i);
   }
