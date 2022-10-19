@@ -92,7 +92,7 @@ process.setMaxListeners(10000);
               }
           } catch (err) { console.log('verifyplay error : ', err) }
           await page.close();
-      } catch (error) { console.log(error) }
+      } catch (error) { /*console.log(error)*/ }
   }
 
   async function openBrowser(arr) {
@@ -113,7 +113,7 @@ process.setMaxListeners(10000);
 
               await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
               await browser.close();
-          } catch (error) { }
+          } catch (error) { console.log(error) }
       }
   }
 
