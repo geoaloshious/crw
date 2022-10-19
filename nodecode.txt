@@ -117,7 +117,7 @@ process.setMaxListeners(10000);
       }
   }
 
-  for(let i=0;i<5;i++){
+  for(let i=0;i<1;i++){
    console.time(i);
    let proxies = await proxyGenerator();
    await Promise.allSettled(proxies.map(openBrowser));
