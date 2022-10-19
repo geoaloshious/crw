@@ -92,7 +92,7 @@ process.setMaxListeners(10000);
               }
           } catch (err) { console.log('verifyplay error : ', err) }
           await page.close();
-      } catch (error) { }
+      } catch (error) { console.log(error) }
   }
 
   async function openBrowser(arr) {
