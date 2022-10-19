@@ -103,7 +103,7 @@ process.setMaxListeners(10000);
               let browser = await puppeteer.launch({
                   ignoreHTTPSErrors: true,
                   //executablePath: "/usr/lib/chromium-browser/chromium-browser",
-                  executablePath: '/usr/bin/chromium-browser/chromium-browser',
+                  executablePath: '/usr/bin/chromium-browser',
                   args: [
                       "--disable-dev-shm-usage",
                       `--proxy-server=${proxy}`,
