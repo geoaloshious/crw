@@ -25,7 +25,7 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     let site = Number(process.argv[2]);
     let slNo = Number(process.argv[3]);
 
-    let proxyArraySize = 50;
+    let proxyArraySize = 10;
     let urlLimit = 2;
     let sIndex = slNo * urlLimit;
     let eIndex = sIndex + urlLimit;
