@@ -29,8 +29,8 @@ process.on("uncaughtException", err => {
     let site = Number(process.argv[2]);
     let slNo = Number(process.argv[3]);
 
-    let proxyArraySize = 10;
-    let urlLimit = 1;
+    let proxyArraySize = 5;
+    let urlLimit = 100;
     let sIndex = slNo * urlLimit;
     let eIndex = sIndex + urlLimit;
 
@@ -100,7 +100,7 @@ process.on("uncaughtException", err => {
                 proxy,
                 headers,
                 rejectUnauthorized: false,
-                // timeout: 30000
+                timeout: 30000
             }, (error, response, body) => {
                 if (!error && response.statusCode == 200) {
                     resolve({ response, body })
@@ -198,7 +198,7 @@ process.on("uncaughtException", err => {
         }
     }
 
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 5; i++) {
         console.time(i);
         let proxies = await proxyGenerator();
         await Promise.allSettled(proxies.map(openBrowser));
