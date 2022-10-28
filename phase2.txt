@@ -29,8 +29,8 @@ process.on("uncaughtException", err => {
     let site = Number(process.argv[2]);
     let slNo = Number(process.argv[3]);
 
-    let proxyArraySize = 5;
-    let urlLimit = 100;
+    let proxyArraySize = 2;
+    let urlLimit = 200;
     let sIndex = slNo * urlLimit;
     let eIndex = sIndex + urlLimit;
 
