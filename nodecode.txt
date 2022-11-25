@@ -2,126 +2,169 @@ var request = require("request");
 var cheerio = require("cheerio");
 var puppeteer = require("puppeteer-extra");
 var StealthPlugin = require("puppeteer-extra-plugin-stealth");
- 
+// let useProxy = require('puppeteer-page-proxy');
+const fs = require('fs');
+
 puppeteer.use(StealthPlugin());
 process.setMaxListeners(10000);
 
-(async() => {
-  function crequest(url, ret_arr) {
-    return new Promise((resolve) => {
-        request(url, (error, response, html) => {
-            if (!error && response.statusCode == 200) {
-                if(ret_arr){
-                    let arr = html.split("\n");
-                    arr.pop();
-                    resolve(arr);
+(async () => {
+    function crequest(url, ret_arr) {
+        return new Promise((resolve) => {
+            request(url, (error, response, html) => {
+                if (!error && response.statusCode == 200) {
+                    if (ret_arr) {
+                        let arr = html.split("\n");
+                        arr.pop();
+                        resolve(arr);
+                    }
+                    else resolve(html);
+                } else {
+                    if (ret_arr) resolve([]);
+                    else resolve('');
                 }
-                else resolve(html);
-            } else {
-                if(ret_arr) resolve([]);
-                else resolve('');
-            }
+            });
         });
-    });
-  }
+    }
 
-  let site = Number(process.argv[2]);
-  let slNo = Number(process.argv[3]);
-  
-  let verifyBtnId = site === 1 ? '#disclaimer-enter' : '#disclaimer-over18btn';
-  let proxyArraySize = 5;
-  let urlLimit = 8;
-  let sIndex = slNo * urlLimit;
-  let eIndex = sIndex + urlLimit;
+    let site = Number(process.argv[2]);
+    let slNo = Number(process.argv[3]);
 
-  var userAgents = await crequest('https://geoaloshious.github.io/crw/useragents.txt', true);
-  var URLS = (await crequest(`https://geoaloshious.github.io/crw/urls/${site === 1 ? 'xvd' : 'xnxx'}.txt`, true)).slice(sIndex, eIndex);
+    let verifyBtnId = site === 1 ? '#disclaimer-enter' : '#disclaimer-over18btn';
+    let proxyArraySize = 5;
+    let urlLimit = 8;
+    let sIndex = slNo * urlLimit;
+    let eIndex = sIndex + urlLimit;
 
-  function proxyGenerator() {
-      return new Promise((resolve) => {
-          let ip_addresses = [];
-          let port_numbers = [];
+    var userAgents = await crequest('https://geoaloshious.github.io/crw/useragents.txt', true);
+    var URLS = (await crequest(`https://geoaloshious.github.io/crw/urls/${site === 1 ? 'xvd' : 'xnxx'}.txt`, true)).slice(sIndex, eIndex);
 
-          request(
-              'https://sslproxies.org',
-              function (error, response, html) {
-                  if (!error && response.statusCode == 200) {
-                      let $ = cheerio.load(html);
-                      $("td:nth-child(1)").each((_, el) => ip_addresses.push($(el).text()));
-                      $("td:nth-child(2)").each((_, el) => port_numbers.push($(el).text()));;
-                  } else {
-                      console.log("Error loading proxy, please try again");
-                  }
+    function proxyGenerator() {
+        return new Promise((resolve) => {
+            let ip_addresses = [];
+            let port_numbers = [];
 
-                  let newArr = [[]];
+            request(
+                'https://sslproxies.org',
+                function (error, response, html) {
+                    if (!error && response.statusCode == 200) {
+                        let $ = cheerio.load(html);
+                        $("td:nth-child(1)").each((_, el) => ip_addresses.push($(el).text()));
+                        $("td:nth-child(2)").each((_, el) => port_numbers.push($(el).text()));;
+                    } else {
+                        console.log("Error loading proxy, please try again");
+                    }
 
-                  ip_addresses.forEach((ip, i) => {
-                      let obj = {
-                          proxy: `https=${ip}:${port_numbers[i]}`,
-                          ua: userAgents[Math.floor(Math.random() * userAgents.length)]
-                      }
+                    let newArr = [[]];
 
-                      let lastElement = newArr[newArr.length - 1];
+                    ip_addresses.forEach((ip, i) => {
+                        let obj = {
+                            proxy: `https=${ip}:${port_numbers[i]}`,
+                            ua: userAgents[Math.floor(Math.random() * userAgents.length)]
+                        }
 
-                      if (lastElement.length < proxyArraySize) {
-                          lastElement.push(obj);
-                      } else {
-                          newArr.push([obj]);
-                      }
-                  });
+                        let lastElement = newArr[newArr.length - 1];
 
-                  resolve(newArr);
-              }
-          );
-      });
-  }
+                        if (lastElement.length < proxyArraySize) {
+                            lastElement.push(obj);
+                        } else {
+                            newArr.push([obj]);
+                        }
+                    });
 
-  async function openPage(br, url, agent) {
-      try {
-          const page = await br.newPage();
-          await page.setUserAgent(agent);
-          await page.setCacheEnabled(false);
-          await page.goto(url, { waitUntil: 'networkidle2' });
-          await page.waitForTimeout(2000);
+                    resolve(newArr);
+                }
+            );
+        });
+    }
 
-          try {
-              let verifyBtn = await page.$(verifyBtnId);
-              if (verifyBtn !== null) {
-                  await verifyBtn.click();
-                  await page.waitForTimeout(5000);
-              }
-          } catch (err) { console.log('verifyplay error : ', err) }
-          await page.close();
-      } catch (error) { /*console.log(error)*/ }
-  }
+    // let err_cnt = 0, cnt = 0;
+    // let resulttt = {};
 
-  async function openBrowser(arr) {
-      for (let i = 0; i < arr.length; i++) {
-          let { proxy, ua } = arr[i]
+    async function openPage(br, url, agent, p) {
+        try {
+            const page = await br.newPage();
 
-          try {
-              let browser = await puppeteer.launch({
-                  ignoreHTTPSErrors: true,
-                  executablePath: "/usr/lib/chromium-browser/chromium-browser",
-                  //executablePath: '/usr/bin/chromium-browser',
-                  args: [
-                      "--disable-dev-shm-usage",
-                      `--proxy-server=${proxy}`,
-                      "--no-sandbox",
-                      "--disable-setuid-sandbox",
-                  ]
-              });
+            //#region block
+            await page.setRequestInterception(true);
+            page.on('request', (request) => {
+                if (request.url().endsWith('.css') ||
+                    request.url().endsWith('.svg') ||
+                    request.url().startsWith('https://img') ||
+                    request.url().startsWith('https://video') ||
+                    request.url().startsWith('https://www.xvideos.com/html5player') ||
+                    request.url().startsWith('https://hls') ||
+                    request.url().startsWith('https://cdn') ||
+                    request.url().endsWith('wesquare.json') ||
+                    request.url().endsWith('xv-inline-loader.gif') ||
+                    request.url().startsWith('https://www.xvideos.com/threads/video-comments')) {
+                    request.abort();
+                } else {
+                    // if (resulttt[p] === undefined) resulttt[p] = [];
+                    // resulttt[p].push(request.url());
+                    request.continue();
+                    // cnt++;
+                }
+            });
+            //#endregion
 
-              await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua)));
-              await browser.close();
-          } catch (error) { console.log(error) }
-      }
-  }
+            await page.setUserAgent(agent);
+            await page.setCacheEnabled(false);
+            await page.goto(url, { waitUntil: 'networkidle2' });
+            // await page.waitForTimeout(2000);
 
-  for(let i=0;i<1;i++){
-   console.time(i);
-   let proxies = await proxyGenerator();
-   await Promise.allSettled(proxies.map(openBrowser));
-   console.timeEnd(i);
-  }
+            // cnt++;
+
+            try {
+                let verifyBtn = await page.$('[class="btn btn-primary disclaimer-enter-straightsShortSiteName"]');
+                if (verifyBtn !== null) {
+                    await verifyBtn.click();
+                    await page.waitForTimeout(5000);
+
+                    let accept_cookie = await page.$('#disclaimer-accept_cookies');
+                    if (accept_cookie !== null) {
+                        await accept_cookie.click();
+                        await page.waitForTimeout(5000);
+                    }
+                }
+            } catch (err) { /*console.log('verifyplay error : ', err)*/ }
+            await page.close();
+        } catch (error) {
+            // console.log(error) 
+        }
+        // console.log(cnt);
+    }
+
+    async function openBrowser(arr) {
+        for (let i = 0; i < arr.length; i++) {
+            let { proxy, ua } = arr[i]
+
+            try {
+                let browser = await puppeteer.launch({
+                    // headless: false,
+                    ignoreHTTPSErrors: true,
+                    // executablePath: "/usr/lib/chromium-browser/chromium-browser",
+                    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+                    args: [
+                        '--disable-gpu',
+                        "--disable-dev-shm-usage",
+                        `--proxy-server=${proxy}`,
+                        "--no-sandbox",
+                        "--disable-setuid-sandbox"
+                    ]
+                });
+
+                await Promise.allSettled(URLS.map((u) => openPage(browser, u, ua, proxy)));
+                await browser.close();
+            } catch (error) { /*console.log(error)*/ }
+        }
+    }
+
+    for (let i = 0; i < 1; i++) {
+        console.time(i);
+        let proxies = await proxyGenerator();
+        await Promise.allSettled(proxies.map(openBrowser));
+        console.timeEnd(i);
+    }
+    // fs.writeFileSync('outgoing2.json', JSON.stringify(resulttt));
 })();
