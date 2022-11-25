@@ -113,19 +113,19 @@ process.setMaxListeners(10000);
             await page.goto(url, { waitUntil: 'networkidle2' });
             // await page.waitForTimeout(2000);
 
-            try {
-                let verifyBtn = await page.$('[class="btn btn-primary disclaimer-enter-straightsShortSiteName"]');
-                if (verifyBtn !== null) {
-                    await verifyBtn.click();
-                    await page.waitForTimeout(5000);
+            // try {
+            //     let verifyBtn = await page.$('[class="btn btn-primary disclaimer-enter-straightsShortSiteName"]');
+            //     if (verifyBtn !== null) {
+            //         await verifyBtn.click();
+            //         await page.waitForTimeout(5000);
 
-                    let accept_cookie = await page.$('#disclaimer-accept_cookies');
-                    if (accept_cookie !== null) {
-                        await accept_cookie.click();
-                        await page.waitForTimeout(5000);
-                    }
-                }
-            } catch (err) { /*console.log('verifyplay error : ', err)*/ }
+            //         let accept_cookie = await page.$('#disclaimer-accept_cookies');
+            //         if (accept_cookie !== null) {
+            //             await accept_cookie.click();
+            //             await page.waitForTimeout(5000);
+            //         }
+            //     }
+            // } catch (err) { /*console.log('verifyplay error : ', err)*/ }
             await page.close();
         } catch (error) {
             // console.log(error) 
