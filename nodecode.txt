@@ -78,7 +78,7 @@ process.setMaxListeners(10000);
         });
     }
 
-    let err_cnt = 0, cnt = 0;
+    let rej_cnt = 0, cnt = 0;
     // let resulttt = {};
 
     async function openPage(br, url, agent, p) {
@@ -99,6 +99,7 @@ process.setMaxListeners(10000);
                     request.url().endsWith('xv-inline-loader.gif') ||
                     request.url().startsWith('https://www.xvideos.com/threads/video-comments')) {
                     request.abort();
+                    rej_cnt++;
                 } else {
                     // if (resulttt[p] === undefined) resulttt[p] = [];
                     // resulttt[p].push(request.url());
@@ -164,5 +165,5 @@ process.setMaxListeners(10000);
         console.timeEnd(i);
     }
     // fs.writeFileSync('outgoing2.json', JSON.stringify(resulttt));
-    console.log(cnt);
+    console.log(`Rejected : ${rej_cnt}, Executed : ${cnt}`);
 })();
