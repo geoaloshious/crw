@@ -78,7 +78,7 @@ process.setMaxListeners(10000);
         });
     }
 
-    // let err_cnt = 0, cnt = 0;
+    let err_cnt = 0, cnt = 0;
     // let resulttt = {};
 
     async function openPage(br, url, agent, p) {
@@ -103,7 +103,7 @@ process.setMaxListeners(10000);
                     // if (resulttt[p] === undefined) resulttt[p] = [];
                     // resulttt[p].push(request.url());
                     request.continue();
-                    // cnt++;
+                    cnt++;
                 }
             });
             //#endregion
@@ -112,8 +112,6 @@ process.setMaxListeners(10000);
             await page.setCacheEnabled(false);
             await page.goto(url, { waitUntil: 'networkidle2' });
             // await page.waitForTimeout(2000);
-
-            // cnt++;
 
             try {
                 let verifyBtn = await page.$('[class="btn btn-primary disclaimer-enter-straightsShortSiteName"]');
@@ -132,7 +130,6 @@ process.setMaxListeners(10000);
         } catch (error) {
             // console.log(error) 
         }
-        // console.log(cnt);
     }
 
     async function openBrowser(arr) {
@@ -167,4 +164,5 @@ process.setMaxListeners(10000);
         console.timeEnd(i);
     }
     // fs.writeFileSync('outgoing2.json', JSON.stringify(resulttt));
+    console.log(cnt);
 })();
